@@ -35,6 +35,9 @@ jobs:
         run: npm run build
         env:
           VITE_DAILY_RECEIPT_API_URL: https://hmfvdgjmagctwoumaghd.supabase.co/functions/v1/daily-receipt-day
+          VITE_PRIVATE_DAILY_RECEIPT_API_URL: https://hmfvdgjmagctwoumaghd.supabase.co/functions/v1/daily-receipt-private-day
+          VITE_SUPABASE_URL: https://hmfvdgjmagctwoumaghd.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable__td7kMKqJ0f0TVv4IE4bIA_NZaZ1U4r
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

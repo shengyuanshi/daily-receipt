@@ -2,3 +2,6 @@ project_id = "hmfvdgjmagctwoumaghd"
 
 [functions.daily-receipt-day]
 verify_jwt = false
+
+[functions.daily-receipt-private-day]
+verify_jwt = true

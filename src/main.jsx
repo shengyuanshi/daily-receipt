@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import { createClient } from '@supabase/supabase-js';
 import {
   BookOpen,
   CalendarDays,
@@ -16,6 +17,7 @@ import {
   Sparkles,
   Stamp,
   Trash2,
+  LockKeyhole,
   X,
 } from 'lucide-react';
 import paperDragSound from './assets/audio/paper-drag.mp3';
@@ -23,6 +25,12 @@ import polaroidPrintSound from './assets/audio/polaroid-print.mp3';
 import './styles.css';
 
 const DAY_API_URL = import.meta.env.VITE_DAILY_RECEIPT_API_URL || 'http://localhost:5174/api/day';
+const PRIVATE_DAY_API_URL = import.meta.env.VITE_PRIVATE_DAILY_RECEIPT_API_URL || DAY_API_URL;
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
+const supabase = SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY
+  ? createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
+  : null;
 
 const demoMetricBaseline = {
   order: 'DEMO-0001',
@@ -325,8 +333,8 @@ function cleanRemoteData(payload) {
   return rest;
 }
 
-function buildDayApiUrl(date) {
-  const url = new URL(DAY_API_URL);
+function buildDayApiUrl(date, isPrivate = false) {
+  const url = new URL(isPrivate ? PRIVATE_DAY_API_URL : DAY_API_URL);
   url.searchParams.set('date', date);
   url.searchParams.set('_', String(Date.now()));
   return url.toString();
@@ -408,6 +416,9 @@ function App() {
   const [signatureOpen, setSignatureOpen] = useState(false);
   const [signature, setSignature] = useState('Yuanyuan');
   const [trayReceipts, setTrayReceipts] = useState([]);
+  const [authSession, setAuthSession] = useState(null);
+  const [authEmail, setAuthEmail] = useState('');
+  const [authMessage, setAuthMessage] = useState('');
   const receiptRef = useRef(null);
   const dragStateRef = useRef(null);
   const requestSeqRef = useRef(0);
@@ -437,8 +448,10 @@ function App() {
     requestSeqRef.current = requestId;
     setApiState({ loading: true, error: '', meta: null, date });
     try {
-      const response = await fetch(buildDayApiUrl(date), {
+      const token = authSession?.access_token;
+      const response = await fetch(buildDayApiUrl(date, Boolean(token)), {
         cache: 'no-store',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       const payload = await response.json();
       if (requestSeqRef.current !== requestId) return;
@@ -456,7 +469,42 @@ function App() {
 
   useEffect(() => {
     fetchReceiptDate(selectedDate);
-  }, [selectedDate]);
+  }, [selectedDate, authSession?.access_token]);
+
+  useEffect(() => {
+    if (!supabase) return undefined;
+    let isMounted = true;
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (isMounted) setAuthSession(session);
+    });
+    const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAuthSession(session);
+      setRemoteData(null);
+    });
+    return () => {
+      isMounted = false;
+      subscription.subscription.unsubscribe();
+    };
+  }, []);
+
+  async function handleSignIn(event) {
+    event.preventDefault();
+    if (!supabase || !authEmail.trim()) return;
+    setAuthMessage('Sending magic link...');
+    const { error } = await supabase.auth.signInWithOtp({
+      email: authEmail.trim(),
+      options: { emailRedirectTo: window.location.href },
+    });
+    setAuthMessage(error ? error.message : 'Check your email for the login link.');
+  }
+
+  async function handleSignOut() {
+    if (!supabase) return;
+    await supabase.auth.signOut();
+    setAuthSession(null);
+    setRemoteData(null);
+    setAuthMessage('Signed out.');
+  }
 
   function handlePrint() {
     if (isPrinting) return;
@@ -614,6 +662,32 @@ function App() {
               </button>
             </div>
           </div>
+
+          <form className="auth-panel" onSubmit={handleSignIn}>
+            <div className="auth-title">
+              <LockKeyhole size={16} strokeWidth={1.6} />
+              <span>{authSession ? 'PRIVATE MODE' : 'PRIVATE LOGIN'}</span>
+            </div>
+            {authSession ? (
+              <button type="button" className="auth-button" onClick={handleSignOut}>
+                Sign out
+              </button>
+            ) : (
+              <>
+                <input
+                  type="email"
+                  value={authEmail}
+                  onChange={(event) => setAuthEmail(event.target.value)}
+                  placeholder="email"
+                  aria-label="Email"
+                />
+                <button type="submit" className="auth-button" disabled={!supabase}>
+                  Send link
+                </button>
+              </>
+            )}
+            {authMessage && <p>{authMessage}</p>}
+          </form>
 
           <div className="source-panel">
             <div className="section-title">
