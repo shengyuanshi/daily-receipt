@@ -10,6 +10,7 @@ import {
   MessageSquareText,
   Mic2,
   Pause,
+  Palette,
   Play,
   Printer,
   ReceiptText,
@@ -31,6 +32,13 @@ const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY |
 const supabase = SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY
   ? createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
   : null;
+
+const themeOptions = [
+  { key: 'green', label: '浅绿', swatch: '#dfe5d8' },
+  { key: 'blue', label: '浅蓝', swatch: '#dce7ef' },
+  { key: 'pink', label: '浅粉', swatch: '#efdfe4' },
+  { key: 'yellow', label: '浅黄', swatch: '#efe8cf' },
+];
 
 const demoMetricBaseline = {
   order: 'DEMO-0001',
@@ -420,6 +428,7 @@ function App() {
   const [authSession, setAuthSession] = useState(null);
   const [authEmail, setAuthEmail] = useState('');
   const [authMessage, setAuthMessage] = useState('');
+  const [uiTheme, setUiTheme] = useState('green');
   const dragStateRef = useRef(null);
   const requestSeqRef = useRef(0);
   const nextZRef = useRef(1);
@@ -659,14 +668,17 @@ function App() {
   }
 
   return (
-    <main className="app-shell">
+    <main className="app-shell" data-theme={uiTheme}>
       <div className="ambient-grid" />
       <header className="topbar">
         <div className="brand">
           <ReceiptText size={32} strokeWidth={1.5} />
           <span>DAILY RECEIPTS</span>
         </div>
-        <div className="creator">Created by yuanyuan</div>
+        <div className="creator">
+          <span>Created by yuanyuan</span>
+          <span>Inspired by @sumins.studio</span>
+        </div>
       </header>
 
       <section className="workspace">
@@ -701,6 +713,52 @@ function App() {
                 <Check size={21} strokeWidth={1.7} />
               </button>
             </div>
+            <div className="theme-panel" aria-label="Interface color theme">
+              <div className="theme-label">
+                <Palette size={14} strokeWidth={1.6} />
+                <span>Theme</span>
+              </div>
+              <div className="theme-swatches">
+                {themeOptions.map((theme) => (
+                  <button
+                    type="button"
+                    className={`theme-choice ${uiTheme === theme.key ? 'is-active' : ''}`}
+                    key={theme.key}
+                    onClick={() => setUiTheme(theme.key)}
+                    aria-pressed={uiTheme === theme.key}
+                    aria-label={`Switch to ${theme.label}`}
+                    style={{ '--swatch': theme.swatch }}
+                  >
+                    <span className="theme-dot" />
+                    <span>{theme.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="source-panel">
+            <div className="section-title">
+              <span>CONTEXT LIST</span>
+              <button type="button" aria-label="Refresh context" onClick={() => fetchReceiptDate(selectedDate)}>
+                <RefreshCw size={16} strokeWidth={1.6} />
+              </button>
+            </div>
+            <div className="source-list">
+              {sourceItems.map((item, index) => {
+                const Icon = item.icon;
+                return (
+                  <div className={`source-row is-${item.status}`} key={item.key} style={{ '--i': index }}>
+                    <div className="source-icon"><Icon size={18} strokeWidth={1.5} /></div>
+                    <div>
+                      <span>{item.label}</span>
+                      <small>{item.detail}</small>
+                    </div>
+                    <div className="status-dot" aria-label={item.status} />
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           <form className="auth-panel" onSubmit={handleSignIn}>
@@ -728,39 +786,15 @@ function App() {
             )}
             {authMessage && <p>{authMessage}</p>}
           </form>
-
-          <div className="source-panel">
-            <div className="section-title">
-              <span>CONTEXT LIST</span>
-              <button type="button" aria-label="Refresh context" onClick={() => fetchReceiptDate(selectedDate)}>
-                <RefreshCw size={16} strokeWidth={1.6} />
-              </button>
-            </div>
-            <div className="source-list">
-              {sourceItems.map((item, index) => {
-                const Icon = item.icon;
-                return (
-                  <div className={`source-row is-${item.status}`} key={item.key} style={{ '--i': index }}>
-                    <div className="source-icon"><Icon size={18} strokeWidth={1.5} /></div>
-                    <div>
-                      <span>{item.label}</span>
-                      <small>{item.detail}</small>
-                    </div>
-                    <div className="status-dot" aria-label={item.status} />
-                  </div>
-                );
-              })}
-            </div>
-          </div>
         </aside>
 
         <section className="printer-stage" aria-label="Daily receipt preview">
           <div className="stage-header">
+            <span>RECEIPT DESK</span>
             <button type="button" className="quiet-button" onClick={handlePrint}>
               <Printer size={16} strokeWidth={1.6} />
               Print
             </button>
-            <span>SESSION SUMMARY</span>
             <button type="button" className="quiet-button" onClick={() => {
               setTrayReceipts([]);
               setSelectedReceiptId(null);

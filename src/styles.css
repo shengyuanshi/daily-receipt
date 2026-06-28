@@ -10,6 +10,22 @@
   --lcd-dark: #47504d;
   --accent: #7d8f83;
   --stamp: #9b3f37;
+  --ui-page: #efefeb;
+  --ui-bg-top: #f7f7f3;
+  --ui-bg-bottom: #e8e8e3;
+  --ui-glow: rgba(255, 255, 255, 0.85);
+  --ui-panel: rgba(244, 244, 239, 0.66);
+  --ui-panel-strong: rgba(250, 250, 247, 0.78);
+  --ui-lcd-from: #eaf0e3;
+  --ui-lcd-to: #dfe5d8;
+  --ui-lcd-screen-from: #dfe7d9;
+  --ui-lcd-screen-to: #cfd7ca;
+  --ui-lcd-ink: #47504d;
+  --ui-button-from: #fbfbf8;
+  --ui-button-to: #e9e9e4;
+  --ui-shadow: rgba(89, 92, 86, 0.12);
+  --ui-dot: #7d8f83;
+  --ui-dot-ring: rgba(125, 143, 131, 0.12);
 }
 
 * {
@@ -24,7 +40,7 @@ body,
 }
 
 body {
-  background: #efefeb;
+  background: var(--ui-page);
   color: var(--ink);
   overflow-x: hidden;
 }
@@ -44,8 +60,63 @@ button {
   min-height: 100dvh;
   padding: 34px clamp(18px, 3vw, 46px) 42px;
   background:
-    radial-gradient(circle at 82% 10%, rgba(255, 255, 255, 0.85), transparent 26rem),
-    linear-gradient(180deg, #f7f7f3 0%, #e8e8e3 100%);
+    radial-gradient(circle at 82% 10%, var(--ui-glow), transparent 26rem),
+    linear-gradient(180deg, var(--ui-bg-top) 0%, var(--ui-bg-bottom) 100%);
+  transition: background 240ms ease;
+}
+
+.app-shell[data-theme="blue"] {
+  --ui-bg-top: #f5f8fa;
+  --ui-bg-bottom: #e3eaf0;
+  --ui-glow: rgba(255, 255, 255, 0.84);
+  --ui-panel: rgba(242, 247, 250, 0.68);
+  --ui-panel-strong: rgba(248, 251, 252, 0.8);
+  --ui-lcd-from: #edf4f7;
+  --ui-lcd-to: #dce7ef;
+  --ui-lcd-screen-from: #e0ebf1;
+  --ui-lcd-screen-to: #cfdae3;
+  --ui-lcd-ink: #44525b;
+  --ui-button-from: #fbfcfc;
+  --ui-button-to: #e7edf1;
+  --ui-shadow: rgba(79, 91, 101, 0.12);
+  --ui-dot: #7893a4;
+  --ui-dot-ring: rgba(120, 147, 164, 0.13);
+}
+
+.app-shell[data-theme="pink"] {
+  --ui-bg-top: #faf6f7;
+  --ui-bg-bottom: #eee2e6;
+  --ui-glow: rgba(255, 255, 255, 0.84);
+  --ui-panel: rgba(249, 243, 245, 0.7);
+  --ui-panel-strong: rgba(252, 248, 249, 0.82);
+  --ui-lcd-from: #f5eaed;
+  --ui-lcd-to: #efdfe4;
+  --ui-lcd-screen-from: #eadce1;
+  --ui-lcd-screen-to: #ddcbd1;
+  --ui-lcd-ink: #5b484f;
+  --ui-button-from: #fdfafa;
+  --ui-button-to: #eee1e5;
+  --ui-shadow: rgba(104, 78, 88, 0.11);
+  --ui-dot: #a9828f;
+  --ui-dot-ring: rgba(169, 130, 143, 0.13);
+}
+
+.app-shell[data-theme="yellow"] {
+  --ui-bg-top: #faf8f1;
+  --ui-bg-bottom: #ebe6d4;
+  --ui-glow: rgba(255, 255, 255, 0.84);
+  --ui-panel: rgba(248, 246, 236, 0.7);
+  --ui-panel-strong: rgba(252, 250, 244, 0.82);
+  --ui-lcd-from: #f5f0de;
+  --ui-lcd-to: #efe8cf;
+  --ui-lcd-screen-from: #e9e3cf;
+  --ui-lcd-screen-to: #ddd4ba;
+  --ui-lcd-ink: #58513e;
+  --ui-button-from: #fdfcf8;
+  --ui-button-to: #eee9d7;
+  --ui-shadow: rgba(104, 95, 70, 0.11);
+  --ui-dot: #a19164;
+  --ui-dot-ring: rgba(161, 145, 100, 0.14);
 }
 
 .ambient-grid {
@@ -64,8 +135,13 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 0 auto 46px;
+  margin: 0 auto 30px;
   max-width: 1420px;
+  padding: 14px 16px;
+  border: 1px solid rgba(105, 108, 102, 0.1);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 12px 28px var(--ui-shadow);
 }
 
 .brand {
@@ -82,35 +158,45 @@ button {
 }
 
 .creator {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
   color: var(--muted);
   font-size: 12px;
+  line-height: 1.45;
+  text-align: right;
 }
 
 .workspace {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(290px, 390px) minmax(0, 1fr);
-  gap: clamp(28px, 5vw, 72px);
+  grid-template-columns: minmax(292px, 360px) minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(24px, 3.6vw, 54px);
   max-width: 1420px;
   margin: 0 auto;
 }
 
 .control-rail {
+  order: 1;
   display: flex;
   flex-direction: column;
-  gap: 32px;
-  padding-top: 26px;
+  gap: 22px;
+  padding-top: 0;
+  position: sticky;
+  top: 24px;
 }
 
 .lcd-module {
-  padding: 18px;
+  padding: 16px;
   border: 1px solid rgba(105, 108, 102, 0.2);
-  border-radius: 30px;
-  background: rgba(244, 244, 239, 0.66);
+  border-radius: 22px;
+  background: var(--ui-panel);
   box-shadow:
-    10px 14px 30px rgba(89, 92, 86, 0.12),
+    10px 14px 30px var(--ui-shadow),
     inset 0 1px 0 rgba(255, 255, 255, 0.88),
     inset 0 -18px 28px rgba(122, 124, 118, 0.08);
+  transition: background 240ms ease, box-shadow 240ms ease;
 }
 
 .lcd-topline {
@@ -128,8 +214,8 @@ button {
   border: 1px solid rgba(60, 66, 63, 0.12);
   border-radius: 18px;
   padding: 14px 15px;
-  background: linear-gradient(180deg, #eaf0e3, var(--lcd));
-  color: var(--lcd-dark);
+  background: linear-gradient(180deg, var(--ui-lcd-from), var(--ui-lcd-to));
+  color: var(--ui-lcd-ink);
   text-align: center;
   box-shadow:
     inset 0 2px 7px rgba(61, 69, 65, 0.12),
@@ -138,20 +224,20 @@ button {
 
 .lcd-time {
   margin: 9px 0 17px;
-  min-height: 128px;
+  min-height: 108px;
   border: 1px solid rgba(60, 66, 63, 0.1);
-  border-radius: 18px;
+  border-radius: 16px;
   background:
     repeating-linear-gradient(0deg, rgba(59, 68, 63, 0.035) 0 1px, transparent 1px 4px),
-    linear-gradient(180deg, #dfe7d9, #cfd7ca);
+    linear-gradient(180deg, var(--ui-lcd-screen-from), var(--ui-lcd-screen-to));
   display: grid;
   place-items: center;
-  color: #333a39;
+  color: var(--ui-lcd-ink);
   box-shadow: inset 0 8px 20px rgba(84, 92, 87, 0.16);
 }
 
 .lcd-time span {
-  font-size: clamp(48px, 8vw, 78px);
+  font-size: clamp(44px, 6vw, 66px);
   line-height: 0.9;
   letter-spacing: 0;
   font-weight: 500;
@@ -175,16 +261,75 @@ button {
 .stamp-button,
 .close-button {
   border: 1px solid rgba(105, 108, 102, 0.18);
-  background: linear-gradient(180deg, #fbfbf8, #e9e9e4);
+  background: linear-gradient(180deg, var(--ui-button-from), var(--ui-button-to));
   box-shadow:
-    0 8px 18px rgba(93, 95, 90, 0.13),
+    0 8px 18px var(--ui-shadow),
     inset 0 1px 0 rgba(255, 255, 255, 0.95);
-  transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+  transition: background 240ms ease, transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
 }
 
 .soft-button {
   height: 54px;
   border-radius: 24px;
+}
+
+.theme-panel {
+  margin-top: 15px;
+  padding: 12px;
+  border: 1px solid rgba(105, 108, 102, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.34);
+}
+
+.theme-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-bottom: 10px;
+  color: #737a77;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.theme-swatches {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.theme-choice {
+  min-width: 0;
+  display: grid;
+  place-items: center;
+  gap: 6px;
+  padding: 9px 4px 8px;
+  border: 1px solid rgba(105, 108, 102, 0.14);
+  border-radius: 15px;
+  background: rgba(248, 247, 242, 0.54);
+  color: #555b58;
+  font-size: 10px;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+
+.theme-choice:active {
+  transform: translateY(1px) scale(0.985);
+}
+
+.theme-choice.is-active {
+  border-color: rgba(32, 35, 38, 0.28);
+  background: rgba(255, 255, 255, 0.68);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8), 0 6px 12px var(--ui-shadow);
+}
+
+.theme-dot {
+  width: 18px;
+  height: 18px;
+  border: 1px solid rgba(32, 35, 38, 0.18);
+  border-radius: 999px;
+  background: var(--swatch);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
 }
 
 .soft-button:active,
@@ -210,8 +355,8 @@ button {
   padding: 14px;
   border: 1px solid rgba(105, 108, 102, 0.14);
   border-radius: 22px;
-  background: rgba(250, 250, 247, 0.72);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92), 0 8px 18px rgba(88, 90, 85, 0.07);
+  background: var(--ui-panel-strong);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92), 0 8px 18px var(--ui-shadow);
 }
 
 .auth-title {
@@ -283,8 +428,8 @@ button {
   padding: 12px 14px;
   border: 1px solid rgba(105, 108, 102, 0.14);
   border-radius: 22px;
-  background: rgba(250, 250, 247, 0.78);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 8px 18px rgba(88, 90, 85, 0.07);
+  background: var(--ui-panel-strong);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 8px 18px var(--ui-shadow);
   opacity: 0;
   transform: translateY(10px);
   animation: row-in 580ms cubic-bezier(.16, 1, .3, 1) forwards;
@@ -297,7 +442,7 @@ button {
   display: grid;
   place-items: center;
   border-radius: 15px;
-  background: #ecece7;
+  background: var(--ui-button-to);
 }
 
 .source-row span {
@@ -325,33 +470,42 @@ button {
   width: 9px;
   height: 9px;
   border-radius: 999px;
-  background: var(--accent);
-  box-shadow: 0 0 0 5px rgba(125, 143, 131, 0.12);
+  background: var(--ui-dot);
+  box-shadow: 0 0 0 5px var(--ui-dot-ring);
   animation: breathe 2.4s ease-in-out infinite;
 }
 
 .printer-stage {
+  order: 2;
   min-width: 0;
 }
 
 .stage-header {
   display: grid;
-  grid-template-columns: 120px 1fr 112px 132px;
+  grid-template-columns: 1fr auto auto auto;
   align-items: center;
-  gap: 18px;
-  margin-bottom: 30px;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 10px;
+  border: 1px solid rgba(105, 108, 102, 0.12);
+  border-radius: 18px;
+  background:
+    repeating-linear-gradient(90deg, rgba(32, 35, 38, 0.025) 0 1px, transparent 1px 7px),
+    rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 18px var(--ui-shadow);
   color: #4e5351;
   letter-spacing: 0.22em;
 }
 
 .stage-header > span {
-  justify-self: center;
-  font-size: 18px;
+  justify-self: start;
+  padding-left: 12px;
+  font-size: 15px;
 }
 
 .quiet-button {
-  min-height: 42px;
-  border-radius: 20px;
+  min-height: 38px;
+  border-radius: 15px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1084,15 +1238,21 @@ button {
   }
 
   .control-rail {
+    order: 2;
+    position: static;
     padding-top: 0;
   }
 
+  .printer-stage {
+    order: 1;
+  }
+
   .stage-header {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr auto auto auto;
   }
 
   .stage-header > span {
-    order: -1;
+    order: 0;
   }
 }
 
@@ -1128,6 +1288,11 @@ button {
   .printer-body::after {
     width: min(92%, 478px);
     height: 700px;
+  }
+
+  .slot-mask {
+    top: 0;
+    width: min(92%, 456px);
   }
 
   .paper-slot {
