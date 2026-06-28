@@ -210,7 +210,12 @@ button {
 }
 
 .lcd-module input[type="date"] {
+  display: block;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  -webkit-appearance: none;
+  appearance: none;
   border: 1px solid rgba(60, 66, 63, 0.12);
   border-radius: 18px;
   padding: 14px 15px;
@@ -1292,16 +1297,18 @@ button {
   }
 
   .printer-body {
-    min-height: 930px;
+    min-height: 980px;
     padding: 64px 8px 112px;
   }
 
   .printer-body::before {
+    top: 64px;
     width: min(100%, 520px);
     height: 780px;
   }
 
   .printer-body::after {
+    top: 78px;
     width: min(92%, 478px);
     height: 700px;
   }
