@@ -713,27 +713,28 @@ function App() {
                 <Check size={21} strokeWidth={1.7} />
               </button>
             </div>
-            <div className="theme-panel" aria-label="Interface color theme">
-              <div className="theme-label">
-                <Palette size={14} strokeWidth={1.6} />
-                <span>Theme</span>
-              </div>
-              <div className="theme-swatches">
-                {themeOptions.map((theme) => (
-                  <button
-                    type="button"
-                    className={`theme-choice ${uiTheme === theme.key ? 'is-active' : ''}`}
-                    key={theme.key}
-                    onClick={() => setUiTheme(theme.key)}
-                    aria-pressed={uiTheme === theme.key}
-                    aria-label={`Switch to ${theme.label}`}
-                    style={{ '--swatch': theme.swatch }}
-                  >
-                    <span className="theme-dot" />
-                    <span>{theme.label}</span>
-                  </button>
-                ))}
-              </div>
+          </div>
+
+          <div className="theme-panel" aria-label="Interface color theme">
+            <div className="theme-label">
+              <Palette size={14} strokeWidth={1.6} />
+              <span>Theme</span>
+            </div>
+            <div className="theme-swatches">
+              {themeOptions.map((theme) => (
+                <button
+                  type="button"
+                  className={`theme-choice ${uiTheme === theme.key ? 'is-active' : ''}`}
+                  key={theme.key}
+                  onClick={() => setUiTheme(theme.key)}
+                  aria-pressed={uiTheme === theme.key}
+                  aria-label={`Switch to ${theme.label}`}
+                  style={{ '--swatch': theme.swatch }}
+                >
+                  <span className="theme-dot" />
+                  <span>{theme.label}</span>
+                </button>
+              ))}
             </div>
           </div>
 

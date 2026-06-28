@@ -274,7 +274,7 @@ button {
 }
 
 .theme-panel {
-  margin-top: 15px;
+  margin-top: 0;
   padding: 12px;
   border: 1px solid rgba(105, 108, 102, 0.12);
   border-radius: 18px;
@@ -1238,13 +1238,29 @@ button {
   }
 
   .control-rail {
-    order: 2;
+    display: contents;
     position: static;
     padding-top: 0;
   }
 
-  .printer-stage {
+  .lcd-module {
     order: 1;
+  }
+
+  .printer-stage {
+    order: 2;
+  }
+
+  .theme-panel {
+    order: 3;
+  }
+
+  .source-panel {
+    order: 4;
+  }
+
+  .auth-panel {
+    order: 5;
   }
 
   .stage-header {
