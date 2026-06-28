@@ -1,0 +1,4 @@
+project_id = "hmfvdgjmagctwoumaghd"
+
+[functions.daily-receipt-day]
+verify_jwt = false

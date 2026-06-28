@@ -1,0 +1,12 @@
+.DS_Store
+.env
+.env.*
+node_modules/
+dist/
+data/
+tmp/
+separated_audio/
+separate_bgm_sfx.py
+*auth*qr*.png
+*qrcode*.png
+scripts/
