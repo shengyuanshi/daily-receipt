@@ -416,12 +416,13 @@ function App() {
   const [signatureOpen, setSignatureOpen] = useState(false);
   const [signature, setSignature] = useState('Yuanyuan');
   const [trayReceipts, setTrayReceipts] = useState([]);
+  const [selectedReceiptId, setSelectedReceiptId] = useState(null);
   const [authSession, setAuthSession] = useState(null);
   const [authEmail, setAuthEmail] = useState('');
   const [authMessage, setAuthMessage] = useState('');
-  const receiptRef = useRef(null);
   const dragStateRef = useRef(null);
   const requestSeqRef = useRef(0);
+  const nextZRef = useRef(1);
 
   function playSound(src, volume = 0.72) {
     const audio = new Audio(src);
@@ -511,6 +512,9 @@ function App() {
     playSound(polaroidPrintSound, 0.78);
     setIsPrinting(true);
     const id = crypto.randomUUID();
+    const z = nextZRef.current + 1;
+    nextZRef.current = z;
+    setSelectedReceiptId(id);
     setTrayReceipts((items) => [
       ...items,
       {
@@ -523,6 +527,7 @@ function App() {
         x: ((items.length % 3) - 1) * 28,
         y: 28 + (items.length % 4) * 18,
         r: ((items.length % 5) - 2) * 1.8,
+        z,
       },
     ]);
     window.setTimeout(() => {
@@ -532,8 +537,10 @@ function App() {
     }, PRINT_OUT_MS);
     window.setTimeout(() => {
       setTrayReceipts((items) => items.map((item) => (
-        item.id === id ? { ...item, phase: 'rest' } : item
+        item.id === id ? { ...item, phase: 'rest', z: nextZRef.current + 1 } : item
       )));
+      nextZRef.current += 1;
+      setSelectedReceiptId(id);
       setIsPrinting(false);
     }, PRINT_OUT_MS + SETTLE_MS);
   }
@@ -544,6 +551,12 @@ function App() {
     if (item.phase && item.phase !== 'rest') return;
     event.preventDefault();
     playSound(paperDragSound, 0.68);
+    const z = nextZRef.current + 1;
+    nextZRef.current = z;
+    setSelectedReceiptId(id);
+    setTrayReceipts((items) => items.map((receipt) => (
+      receipt.id === id ? { ...receipt, z } : receipt
+    )));
     const element = event.currentTarget;
     element.setPointerCapture(event.pointerId);
     element.classList.add('is-dragging');
@@ -587,19 +600,47 @@ function App() {
       dragState.element.releasePointerCapture(dragState.pointerId);
     }
     dragState.element.classList.remove('is-dragging');
+    const z = nextZRef.current + 1;
+    nextZRef.current = z;
+    setSelectedReceiptId(dragState.id);
     setTrayReceipts((items) => items.map((item) => (
-      item.id === dragState.id ? { ...item, x: dragState.nextX, y: dragState.nextY } : item
+      item.id === dragState.id ? { ...item, x: dragState.nextX, y: dragState.nextY, z } : item
     )));
     dragStateRef.current = null;
   }
 
   async function handleExport() {
-    const receipt = receiptRef.current;
-    if (!receipt) return;
+    const selectedReceipt = trayReceipts.find((item) => item.id === selectedReceiptId && item.phase !== 'printing')
+      || trayReceipts.filter((item) => item.phase !== 'printing').sort((a, b) => (b.z || 0) - (a.z || 0))[0]
+      || {
+        id: 'current',
+        date: selectedDate,
+        data,
+        signature,
+        isSigned,
+      };
     setIsExporting(true);
-    receipt.classList.add('receipt-export-pulse');
+    const mount = document.createElement('div');
+    mount.className = 'receipt-export-capture';
+    document.body.appendChild(mount);
+    const root = createRoot(mount);
 
     try {
+      root.render(
+        <article className="receipt receipt-export-card">
+          <div className="receipt-tear top" />
+          <ReceiptContent
+            data={selectedReceipt.data}
+            selectedDate={selectedReceipt.date}
+            apiState={{ loading: false, error: '', meta: null }}
+            signature={selectedReceipt.signature}
+            isSigned={selectedReceipt.isSigned}
+          />
+          <div className="receipt-tear bottom" />
+        </article>,
+      );
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const receipt = mount.querySelector('.receipt-export-card');
       const { default: html2canvas } = await import('html2canvas');
       const canvas = await html2canvas(receipt, {
         backgroundColor: null,
@@ -607,14 +648,13 @@ function App() {
         useCORS: true,
       });
       const link = document.createElement('a');
-      link.download = `daily-receipt-${selectedDate}.png`;
+      link.download = `daily-receipt-${selectedReceipt.date}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
     } finally {
-      window.setTimeout(() => {
-        receipt.classList.remove('receipt-export-pulse');
-        setIsExporting(false);
-      }, 700);
+      root.unmount();
+      mount.remove();
+      setIsExporting(false);
     }
   }
 
@@ -721,7 +761,10 @@ function App() {
               Print
             </button>
             <span>SESSION SUMMARY</span>
-            <button type="button" className="quiet-button" onClick={() => setTrayReceipts([])}>
+            <button type="button" className="quiet-button" onClick={() => {
+              setTrayReceipts([]);
+              setSelectedReceiptId(null);
+            }}>
               <Trash2 size={16} strokeWidth={1.6} />
               Clear
             </button>
@@ -743,6 +786,7 @@ function App() {
                     '--x': `${item.x}px`,
                     '--y': `${item.y}px`,
                     '--r': `${item.r}deg`,
+                    '--z': item.z || 1,
                   }}
                 >
                   <div className="receipt-tear top" />
@@ -763,10 +807,12 @@ function App() {
                   className={`receipt tray-receipt is-${item.phase || 'rest'}`}
                   key={item.id}
                   onPointerDown={(event) => startDrag(event, item.id)}
+                  onClick={() => setSelectedReceiptId(item.id)}
                   style={{
                     '--x': `${item.x}px`,
                     '--y': `${item.y}px`,
                     '--r': `${item.r}deg`,
+                    '--z': item.z || 1,
                   }}
                 >
                   <div className="receipt-tear top" />
@@ -785,18 +831,6 @@ function App() {
           </div>
         </section>
       </section>
-
-      <article ref={receiptRef} className="receipt receipt-export-template" aria-hidden="true">
-        <div className="receipt-tear top" />
-        <ReceiptContent
-          data={data}
-          selectedDate={selectedDate}
-          apiState={apiState}
-          signature={signature}
-          isSigned={isSigned}
-        />
-        <div className="receipt-tear bottom" />
-      </article>
 
       {signatureOpen && (
         <div className="modal-layer" role="dialog" aria-modal="true" aria-label="Sign today">

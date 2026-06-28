@@ -462,13 +462,14 @@ button {
   animation: receipt-enter 900ms cubic-bezier(.16, 1, .3, 1) both;
 }
 
-.receipt-export-template {
+.receipt-export-capture {
   position: fixed;
-  left: -9999px;
+  left: -10000px;
   top: 0;
+  z-index: 1;
   width: 420px;
   pointer-events: none;
-  opacity: 0;
+  opacity: 1;
 }
 
 .tray-stack {
@@ -484,6 +485,7 @@ button {
 
 .tray-receipt {
   position: absolute;
+  z-index: var(--z);
   top: 0;
   left: 50%;
   width: min(64%, 336px);
@@ -519,7 +521,7 @@ button {
 }
 
 .tray-receipt.is-dragging {
-  z-index: 6;
+  z-index: calc(var(--z) + 1000);
   transition: none;
 }
 
@@ -531,8 +533,9 @@ button {
   height: 132px;
 }
 
-.receipt-export-pulse {
-  animation: receipt-flash 850ms ease both;
+.receipt-export-card {
+  width: 420px;
+  animation: none;
 }
 
 .receipt-content {
@@ -1072,16 +1075,6 @@ button {
       translate(var(--x), var(--y))
       rotate(var(--r))
       scale(0.82);
-  }
-}
-
-@keyframes receipt-flash {
-  0%,
-  100% {
-    filter: drop-shadow(0 22px 24px rgba(50, 52, 49, 0.18));
-  }
-  40% {
-    filter: drop-shadow(0 22px 24px rgba(50, 52, 49, 0.18)) brightness(1.08);
   }
 }
 
